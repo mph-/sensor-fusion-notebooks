@@ -1,6 +1,6 @@
 # Michael P. Hayes UCECE, Copyright 2018--2021
 from numpy import radians, exp, linspace, zeros, sqrt, nanargmax, unravel_index
-from numpy import NaN
+from numpy import nan
 from matplotlib.pyplot import Circle
 from ipywidgets import interact
 from matplotlib.pyplot import subplots
@@ -60,7 +60,7 @@ def calc_objective(weights, heading, vv, ww, speed_goal, heading_goal, dt,
             clearance = d_obs_min - d_brake
 
             if clearance < 0:
-                weights[n, m] = NaN
+                weights[n, m] = nan
             else:
                 weights[n, m] = objective(v, speed_goal,
                                           robot.heading, heading_goal)
