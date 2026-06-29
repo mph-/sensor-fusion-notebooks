@@ -2,8 +2,8 @@
 from numpy import radians, exp, linspace, zeros, sqrt, nanargmax, unravel_index
 from numpy import nan
 from matplotlib.pyplot import Circle
-from ipywidgets import interact
-from matplotlib.pyplot import subplots
+from ipywidgets import interact, fixed
+from matplotlib.pyplot import subplots, show
 from .lib.utils import angle_difference
 from .lib.robot import robot_draw, Robot
 
@@ -69,7 +69,7 @@ def calc_objective(weights, heading, vv, ww, speed_goal, heading_goal, dt,
                 # (1 - exp(-clearance / d))
 
 
-def dwa_demo2_plot(x=0, y=1, heading=90, v=1, omega=0, speed_goal=1,
+def dwa_demo2_plot(axes, x=0, y=1, heading=90, v=1, omega=0, speed_goal=1,
                    heading_goal=90, obstacles=False, inflate=False,
                    show_best=False):
 
@@ -109,8 +109,9 @@ def dwa_demo2_plot(x=0, y=1, heading=90, v=1, omega=0, speed_goal=1,
     extra_v = v_max * 0.05
     extra_w = w_max * 0.05
 
-    fig, axes = subplots(1, 2, figsize=(12, 6))
     xax, vax = axes
+    xax.clear()
+    vax.clear()
 
     vax.set_xlim(v_min - extra_v, v_max + extra_v)
     vax.set_ylim(w_min - extra_w, w_max + extra_w)
@@ -125,7 +126,7 @@ def dwa_demo2_plot(x=0, y=1, heading=90, v=1, omega=0, speed_goal=1,
              '-', color='orange')
 
     vax.set_xlabel('$v$')
-    vax.set_ylabel('$\omega$')
+    vax.set_ylabel(r'$\omega$')
 
     Nv = 9
     Nw = 9
@@ -150,7 +151,7 @@ def dwa_demo2_plot(x=0, y=1, heading=90, v=1, omega=0, speed_goal=1,
     vax.imshow(weights.T, origin='lower', interpolation=None, aspect='auto',
                extent=(v1_min, v1_max, w1_min, w1_max))
     vax.grid(True)
-    vax.set_title('$v = %.1f, \omega = %.1f$' % (v_best, w_best))
+    vax.set_title(r'$v = %.1f, \omega = %.1f$' % (v_best, w_best))
 
     xax.set_xlabel('$x$')
     xax.set_ylabel('$y$')
@@ -175,7 +176,7 @@ def dwa_demo2_plot(x=0, y=1, heading=90, v=1, omega=0, speed_goal=1,
     if show_best:
         v = v_best
         omega = w_best
-    xax.set_title('$v = %.1f, \omega = %.1f$' % (v, omega))
+    xax.set_title(r'$v = %.1f, \omega = %.1f$' % (v, omega))
 
     for m in range(steps + 1):
         xv[m] = robot.x
@@ -191,7 +192,11 @@ def dwa_demo2_plot(x=0, y=1, heading=90, v=1, omega=0, speed_goal=1,
 
 
 def dwa_demo2():
-    interact(dwa_demo2_plot, x=(-4, 4, 0.5), y=(0, 4, 0.5),
+
+    fig, axes = subplots(2, figsize=(5, 5))
+    show()
+
+    interact(dwa_demo2_plot, axes=fixed(axes), x=(-4, 4, 0.5), y=(0, 4, 0.5),
              dt=(0.1, 1, 0.1),
              v=(0, 2, 0.1), omega=(-60, 60, 15),
              v_max=(1, 5), omega_max=(90, 360, 15),

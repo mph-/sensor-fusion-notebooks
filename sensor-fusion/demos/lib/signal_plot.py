@@ -5,6 +5,7 @@ import numpy as np
 
 spectrum_modes = ['real-imag', 'magnitude', 'magnitude dB', 'phase', 'magnitude-phase', 'magnitude dB-phase']
 
+
 def lollipop_plot(x, y, axes=None, markersize=4, **kwargs):
     """Produce a lollipop (stem) plot."""
 
@@ -12,7 +13,7 @@ def lollipop_plot(x, y, axes=None, markersize=4, **kwargs):
     color = kwargs.pop('color', 'blue')
 
     x = np.arange(len(x))
-    
+
     markerline, stemlines, baseline = axes.stem(x, y, **kwargs)
     setp(baseline, 'linewidth', 0, 'color', color)
     setp(markerline, 'markersize', markersize, 'color', color)
@@ -27,9 +28,9 @@ class Plotter(object):
         axes.set_xlabel(self.xlabel)
 
     def plot_lollipop(self, x, y, **kwargs):
-        axes = kwargs.pop('axes', self.axes)        
+        axes = kwargs.pop('axes', self.axes)
         lollipop_plot(x, y, axes=axes, **kwargs)
-        axes.set_xlabel(self.xlabel)        
+        axes.set_xlabel(self.xlabel)
 
     def __init__(self, axes, mode='time', lollipop=True):
         self.axes = axes
@@ -49,23 +50,23 @@ class Plotter(object):
             else:
                 xlabel += ' (Hz)'
         self.xlabel = xlabel
-                
+
     def plot(self, x, y, **kwargs):
 
         ylim = kwargs.pop('ylim', None)
-        
+
         if self.mode == 'time':
             self.plot_method(x, y, **kwargs)
             xlabel = 'Time (s)'
             if self.lollipop:
-                xlabel = 'Time (samples)'                
+                xlabel = 'Time (samples)'
             self.axes.set_xlabel(xlabel)
 
         elif self.mode == 'real-imag':
             self.plot_method(x, y.real, label='real', **kwargs)
             self.plot_method(x, y.imag, label='imag', color='orange', **kwargs)
             self.axes.legend()
-            
+
         elif self.mode == 'magnitude':
             self.plot_method(x, abs(y), label='magnitude', **kwargs)
             self.axes.set_ylabel('Magnitude')
@@ -77,65 +78,73 @@ class Plotter(object):
             self.axes.set_ylabel('Magnitude (dB)')
 
         elif self.mode == 'phase':
-            self.plot_method(x, np.degrees(np.arctan2(y.imag, y.real)), label='phase', color='orange', **kwargs)
+            self.plot_method(x, np.degrees(np.arctan2(y.imag, y.real)),
+                             label='phase', color='orange', **kwargs)
             self.axes.set_ylabel('Phase (deg)')
 
         elif self.mode == 'magnitude-phase':
             axes2 = self.axes.twinx()
             self.plot_method(x, abs(y), label='magnitude', **kwargs)
             self.axes.set_ylabel('Magnitude')
-            self.plot_method(x, np.degrees(np.arctan2(y.imag, y.real)), label='phase', axes=axes2, color='orange', **kwargs)
+            self.plot_method(x, np.degrees(np.arctan2(y.imag, y.real)),
+                             label='phase', axes=axes2, color='orange',
+                             **kwargs)
             axes2.set_ylabel('Phase (deg)')
             self.axes.legend()
-            axes2.legend()            
-            
+            axes2.legend()
+
         elif self.mode == 'magnitude dB-phase':
             axes2 = self.axes.twinx()
             dB = 20 * np.log10(abs(y))
-            dB[dB < -100] = -100            
+            dB[dB < -100] = -100
             self.plot_method(x, dB, label='magnitude', **kwargs)
             self.axes.set_ylabel('Magnitude (dB)')
-            self.plot_method(x, np.degrees(np.arctan2(y.imag, y.real)), label='phase', axes=axes2, color='orange', **kwargs)
+            self.plot_method(x, np.degrees(np.arctan2(y.imag, y.real)),
+                             label='phase', axes=axes2, color='orange',
+                             **kwargs)
             axes2.set_ylabel('Phase (deg)')
             self.axes.legend()
-            axes2.legend()            
-            
+            axes2.legend()
+
         else:
-            raise ValueError('Unknown mode %s' % mode)
+            raise ValueError('Unknown mode %s' % self.mode)
 
         if ylim is not None:
-           self.axes.set_ylim(ylim)
+            self.axes.set_ylim(ylim)
 
-            
+
 def create_axes(num_axes=1, **kwargs):
 
     axes = kwargs.pop('axes', None)
-    figsize = kwargs.pop('figsize', (8, 4))    
+    figsize = kwargs.pop('figsize', (8, 4))
 
-    if axes is None:    
+    if axes is None:
         fig, axes = subplots(num_axes, 1, figsize=figsize)
         if num_axes > 1:
             fig.subplots_adjust(hspace=0.4)
     return axes, kwargs
 
-def signal_plot_func(t, x, **kwargs):    
+
+def signal_plot_func(t, x, **kwargs):
 
     if kwargs.pop('both', False):
         axes, kwargs = create_axes(2, **kwargs)
         Plotter(axes[0], 'time', lollipop=True).plot(t, x)
-        Plotter(axes[1], 'time', lollipop=False).plot(t, x)                
+        Plotter(axes[1], 'time', lollipop=False).plot(t, x)
         return axes[0].figure
 
-    axes, kwargs = create_axes(1, **kwargs)    
+    axes, kwargs = create_axes(1, **kwargs)
     lollipop = kwargs.pop('lollipop', False)
     Plotter(axes, 'time', lollipop=lollipop).plot(t, x, **kwargs)
     return axes
+
 
 def dft_plot_func(f, X, lollipop=False, mode='real-imag', **kwargs):
     axes, kwargs = create_axes(1, **kwargs)
 
     Plotter(axes, mode, lollipop).plot(f, X)
     return axes
+
 
 def dtft_plot_func(f, X, mode='real-imag', **kwargs):
 
@@ -144,36 +153,40 @@ def dtft_plot_func(f, X, mode='real-imag', **kwargs):
     Plotter(axes, mode, lollipop=False).plot(f, X)
     return axes
 
+
 def hist_plot_func(t, x, **kwargs):
 
     bins = kwargs.pop('bins', 100)
     range = kwargs.pop('range', None)
-    density = kwargs.pop('density', None)    
-    
-    axes, kwargs = create_axes(1, **kwargs)    
-            
+    density = kwargs.pop('density', None)
+
+    axes, kwargs = create_axes(1, **kwargs)
+
     axes.hist(x, density=density, bins=bins, range=range)
     return axes
+
 
 def signal_plot(t, x, **kwargs):
 
     axes, kwargs = create_axes(1, **kwargs)
     signal_plot_func(t, x, axes=axes, **kwargs)
     return axes.figure
-    
-def signal_plot2(t1, x1, t2, x2, **kwargs):    
+
+
+def signal_plot2(t1, x1, t2, x2, **kwargs):
 
     axes, kwargs = create_axes(2, **kwargs)
-    
+
     signal_plot_func(t1, x1, axes=axes[0], **kwargs)
     if 'color' not in kwargs:
         kwargs['color'] = 'orange'
     signal_plot_func(t2, x2, axes=axes[1], **kwargs)
     return axes[0].figure
 
+
 def signal_plot_with_interpolated(t1, x1, t2, x2, **kwargs):
 
-    axes, kwargs = create_axes(1, **kwargs)    
+    axes, kwargs = create_axes(1, **kwargs)
     lollipop = kwargs.pop('lollipop', False)
     p1 = Plotter(axes, 'time', lollipop=lollipop)
     p1.plot(t1, x1, **kwargs)
@@ -184,88 +197,101 @@ def signal_plot_with_interpolated(t1, x1, t2, x2, **kwargs):
     p1.axes.plot(t2, x2, color='orange', **kwargs)
     return axes.figure
 
-def signal_overplot3(t1, x1, t2, x2, t3, x3, labels, **kwargs):    
+
+def signal_overplot3(t1, x1, t2, x2, t3, x3, labels, **kwargs):
 
     axes, kwargs = create_axes(1, **kwargs)
 
-    signal_plot_func(t1, x1, axes=axes, linestyle='-', label=labels[0], **kwargs)
-    signal_plot_func(t2, x2, axes=axes, linestyle='-.', label=labels[1], **kwargs)
-    signal_plot_func(t3, x3, axes=axes, linestyle='--', label=labels[2], **kwargs)
+    signal_plot_func(t1, x1, axes=axes, linestyle='-',
+                     label=labels[0], **kwargs)
+    signal_plot_func(t2, x2, axes=axes, linestyle='-.',
+                     label=labels[1], **kwargs)
+    signal_plot_func(t3, x3, axes=axes, linestyle='--',
+                     label=labels[2], **kwargs)
     axes.legend()
-    return axes.figure    
+    return axes.figure
 
-def signal_plot3(t1, x1, t2, x2, t3, x3, **kwargs):    
+
+def signal_plot3(t1, x1, t2, x2, t3, x3, **kwargs):
 
     axes, kwargs = create_axes(3, **kwargs)
 
     signal_plot_func(t1, x1, axes=axes[0], **kwargs)
     signal_plot_func(t2, x2, axes=axes[1], **kwargs)
     if 'color' not in kwargs:
-        kwargs['color'] = 'orange'    
+        kwargs['color'] = 'orange'
     signal_plot_func(t3, x3, axes=axes[2], **kwargs)
-    return axes[0].figure    
+    return axes[0].figure
+
 
 def hist_plot(t, x, **kwargs):
 
     axes = hist_plot_func(t, x, **kwargs)
     return axes.figure
 
+
 def hist_plot2(t, x, t2, x2, **kwargs):
 
     axes, kwargs = create_axes(2, **kwargs)
 
     hist_plot_func(t, x, axes=axes[0], **kwargs)
-    hist_plot_func(t2, x2, axes=axes[1], **kwargs)    
+    hist_plot_func(t2, x2, axes=axes[1], **kwargs)
     return axes[0].figure
-        
+
+
 def signal_plot_with_hist(t, x, **kwargs):
 
     range = kwargs.pop('range', None)
-    lollipop = kwargs.pop('lollipop', False)    
-    
+    lollipop = kwargs.pop('lollipop', False)
+
     axes, kwargs = create_axes(2, **kwargs)
 
     signal_plot_func(t, x, axes=axes[0], lollipop=lollipop, **kwargs)
     hist_plot_func(t, x, axes=axes[1], range=range, **kwargs)
     return axes[0].figure
 
+
 def signal_plot_and_hist(t, x, t2, x2, **kwargs):
 
     range = kwargs.pop('range', None)
-    lollipop = kwargs.pop('lollipop', False)    
-    
+    lollipop = kwargs.pop('lollipop', False)
+
     axes, kwargs = create_axes(2, **kwargs)
 
     signal_plot_func(t, x, axes=axes[0], lollipop=lollipop, **kwargs)
     hist_plot_func(t2, x2, axes=axes[1], range=range, **kwargs)
     return axes[0].figure
 
+
 def dtft_plot(f, X, **kwargs):
 
     axes = dtft_plot_func(f, X, **kwargs)
     return axes.figure
+
 
 def signal_plot_with_dtft(t, x, f, X, **kwargs):
 
     axes, kwargs = create_axes(2, **kwargs)
 
     lollipop = kwargs.pop('lollipop', False)
-    
+
     signal_plot_func(t, x, axes=axes[0], lollipop=lollipop, **kwargs)
     dtft_plot_func(f, X, axes=axes[1], **kwargs)
     return axes[0].figure
 
+
 def dft_plot(f, X, **kwargs):
     axes = dft_plot_func(f, X, **kwargs)
     return axes.figure
+
 
 def signal_plot_with_dft(t, x, f, X, **kwargs):
 
     axes, kwargs = create_axes(2, **kwargs)
 
     lollipop = kwargs.pop('lollipop', False)
-    mode = kwargs.pop('mode', 'real-imag')    
-    
+    mode = kwargs.pop('mode', 'real-imag')
+
     signal_plot_func(t, x, axes=axes[0], lollipop=lollipop, **kwargs)
     dft_plot_func(f, X, axes=axes[1], lollipop=lollipop, mode=mode, **kwargs)
     return axes[0].figure

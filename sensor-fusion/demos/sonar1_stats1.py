@@ -1,6 +1,6 @@
 # Michael P. Hayes UCECE, Copyright 2018--2019
 import numpy as np
-from ipywidgets import interact, interactive, fixed
+from ipywidgets import interact, fixed, interactive, fixed
 from matplotlib.pyplot import subplots, show
 
 def sonar1_stats_demo1(N=20, ignore_outliers=True):

@@ -1,7 +1,7 @@
 # Michael P. Hayes UCECE, Copyright 2018--2022
 import numpy as np
 from ipywidgets import interact
-from matplotlib.pyplot import subplots
+from matplotlib.pyplot import subplots, show as show1
 from .lib.utils import gauss
 
 steps = 10
@@ -51,6 +51,9 @@ def kf_demo2_plot(show=show_choices[-1], v=2.0, sigmaX0=0.1, sigmaV=1,
 
     mx = (x < round(steps * B * v)) & (x > -2)
 
+    Xpostmean = 0
+    Xpostvar = 0
+
     for m in range(1, step + 1):
 
         # Note, making the robot have some process noise
@@ -90,7 +93,8 @@ def kf_demo2_plot(show=show_choices[-1], v=2.0, sigmaX0=0.1, sigmaV=1,
     if pdfax is not None:
         pdfax.plot(x[mx], fXinitial[mx], ':',
                    label='$f_{X_{%d}}$ initial' % (m - 1))
-        pdfax.plot(x[mx], fXprior[mx], '--', label='$f_{X_{%d}^{-}}$ prior' % m)
+        pdfax.plot(x[mx], fXprior[mx], '--',
+                   label='$f_{X_{%d}^{-}}$ prior' % m)
         pdfax.plot(x[mx], fXinfer[mx], '-.',
                    label='$L_{%d}$ likelihood' % m)
         pdfax.plot(x[mx], fXpost[mx], label='$f_{X_{%d}^{+}}$ posterior' % m)
@@ -102,8 +106,11 @@ def kf_demo2_plot(show=show_choices[-1], v=2.0, sigmaX0=0.1, sigmaV=1,
     else:
         estax.set_title('z=%.2f, K=%.2f' % (z, K))
 
+    show1()
+
 
 def kf_demo2():
+
     interact(kf_demo2_plot, show=show_choices,
              step=(1, steps), v=(1.0, 4.0, 0.2),
              sigmaX0=(0.1, 2, 0.1),

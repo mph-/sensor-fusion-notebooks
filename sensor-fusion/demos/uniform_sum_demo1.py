@@ -1,6 +1,6 @@
 # M. P. Hayes UCECE
 import numpy as np
-from ipywidgets import interact, interactive, fixed
+from ipywidgets import interact, fixed, interactive, fixed
 from .lib.signal_plot import signal_plot
 
 def uniform_sum_demo1_plot(xmin=-1, xmax=1):

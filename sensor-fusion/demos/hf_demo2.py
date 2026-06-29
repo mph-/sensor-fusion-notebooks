@@ -1,7 +1,7 @@
 # Michael P. Hayes UCECE, Copyright 2018--2023
 import numpy as np
-from ipywidgets import interact
-from matplotlib.pyplot import figure
+from ipywidgets import interact, fixed
+from matplotlib.pyplot import subplots, show
 from .lib.utils import gauss
 
 distributions = ['uniform', 'gaussian']
@@ -18,8 +18,8 @@ def pdf(x, muX, sigmaX, distribution):
     raise ValueError('Unknown distribution %s' % distribution)
 
 
-def hf_demo2_plot(distX0='gaussian', sigmaX0=0.4, sigmaV=0.1, sigmaW=0.1,
-                  seed=1, M=50):
+def hf_demo2_plot(axes, distX0='gaussian', sigmaX0=0.4, sigmaV=0.1,
+                  sigmaW=0.1, seed=1, M=50):
 
     np.random.seed(seed)
 
@@ -58,32 +58,34 @@ def hf_demo2_plot(distX0='gaussian', sigmaX0=0.4, sigmaV=0.1, sigmaW=0.1,
         fX_posterior = fX_prior * gauss(z - x, 0, sigmaV)
         fX_posterior /= np.trapz(fX_posterior, x)
 
-    fig = figure(figsize=(10, 5))
-    ax = fig.add_subplot(111)
-    ax.grid(True)
+    axes.clear()
+    axes.grid(True)
 
-    ax.bar(x, fX_initial, label='$X_{%d}$ initial' % (
+    axes.bar(x, fX_initial, label='$X_{%d}$ initial' % (
         m - 1), edgecolor='black', width=dx)
 
-    ax.bar(x, fX_prior, label='$X_{%d}^{-}$ prior' %
-           m, edgecolor='black', width=dx)
+    axes.bar(x, fX_prior, label='$X_{%d}^{-}$ prior' %
+             m, edgecolor='black', width=dx)
 
-    ax.bar(x, fX_posterior,
-           label='$X_{%d}^{+}$ posterior' % m, edgecolor='black', width=dx)
+    axes.bar(x, fX_posterior,
+             label='$X_{%d}^{+}$ posterior' % m, edgecolor='black', width=dx)
 
-    ax.set_xlim(-1, 3)
-    ax.set_ylim(0, 4)
-    ax.set_xlabel('Position')
-    ax.set_ylabel('Prob. density')
-    ax.legend()
+    axes.set_xlim(-1, 3)
+    axes.set_ylim(0, 4)
+    axes.set_xlabel('Position')
+    axes.set_ylabel('Prob. density')
+    axes.legend()
 
 
 def hf_demo2():
-    interact(hf_demo2_plot, M=(10, 200, 10),
+
+    fig, axes = subplots(1, figsize=(10, 5))
+    show()
+
+    interact(hf_demo2_plot, axes=fixed(axes), M=(10, 200, 10),
              v=(1.0, 4.0, 0.2),
              distX0=distributions,
              sigmaX0=(0.1, 1, 0.1),
              sigmaV=(0.1, 1, 0.1),
              sigmaW=(0.1, 1, 0.1),
-             seed=(1, 100, 1),
-             continuous_update=False)
+             seed=(1, 100, 1))

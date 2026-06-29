@@ -1,8 +1,8 @@
 # Michael P. Hayes UCECE, Copyright 2018--2026
 from numpy import linspace, radians, ceil, cos, sin, round, arange, sqrt
 from numpy import argwhere, zeros, exp, log
-from ipywidgets import interact
-from matplotlib.pyplot import subplots
+from ipywidgets import interact, fixed
+from matplotlib.pyplot import subplots, show
 from .lib.robot import Robot
 from .lib.line import LineSeg
 
@@ -20,6 +20,7 @@ x = linspace(xmin, xmax, Nx)
 y = linspace(ymin, ymax, Ny)
 
 beamwidth = 15
+
 
 class Scan(object):
 
@@ -244,13 +245,14 @@ class Wall(object):
 
         return hit, rmin, blockhit
 
+
 wall1 = Wall((-1, 8), (3, 8))
 wall2 = Wall((4, 6), (4, 7))
 wall3 = Wall((-7, 2), (-7, 7))
 walls = (wall1, wall2, wall3)
 
 
-def heatmap(ax, x, y, data, fmt='%.1f', skip=[], **kwargs):
+def heatmap(axes, x, y, data, fmt='%.1f', skip=[], **kwargs):
 
     dx = x[1] - x[0]
     dy = y[1] - y[0]
@@ -259,10 +261,10 @@ def heatmap(ax, x, y, data, fmt='%.1f', skip=[], **kwargs):
     xc = linspace(x[0] - dx / 2, x[-1] + dx / 2, len(x) + 1)
     yc = linspace(y[0] - dy / 2, y[-1] + dy / 2, len(y) + 1)
 
-    c = ax.pcolor(xc, yc, data, linewidths=4, vmin=0.0, vmax=1.0,
-                  edgecolors=kwargs.pop('edgecolors', 'w'),
-                  cmap=kwargs.pop('cmap', 'Purples'),
-                  **kwargs)
+    c = axes.pcolor(xc, yc, data, linewidths=4, vmin=0.0, vmax=1.0,
+                    edgecolors=kwargs.pop('edgecolors', 'w'),
+                    cmap=kwargs.pop('cmap', 'Purples'),
+                    **kwargs)
 
     c.update_scalarmappable()
 
@@ -283,9 +285,8 @@ def heatmap(ax, x, y, data, fmt='%.1f', skip=[], **kwargs):
                 break
 
         if draw_text:
-            # ?????
-            ax.text(x, y, fmt % value, ha="center", va="center",
-                    color=color, **kwargs)
+            axes.text(x, y, fmt % value, ha="center", va="center",
+                      color=color, **kwargs)
 
 
 class Ogrid(object):
@@ -321,7 +322,7 @@ ogrid = Ogrid(x, y)
 rangefinder = Rangefinder(radians(beamwidth))
 
 
-def ogrid_demo1_plot(x=3, y=1, heading=75):
+def ogrid_demo1_plot(axes, x=3, y=1, heading=75):
 
     robot = Robot(x, y, heading=radians(heading))
 
@@ -332,17 +333,21 @@ def ogrid_demo1_plot(x=3, y=1, heading=75):
     ogrid.update(hits, 0.06, 0.005)
     ogrid.update(misses, 0.2, 0.9)
 
-    fig, ax = subplots(figsize=(10, 5))
-    ax.axis('equal')
-    ogrid.draw(ax, ((robot.x, robot.y), ))
-    robot.draw(ax, d=0.55)
+    axes.clear()
+    axes.axis('equal')
+    ogrid.draw(axes, ((robot.x, robot.y), ))
+    robot.draw(axes, d=0.55)
     for wall in walls:
-        wall.draw(ax)
-    rangefinder.draw_scan(ax, robot.pose, scan)
+        wall.draw(axes)
+    rangefinder.draw_scan(axes, robot.pose, scan)
 
 
 def ogrid_demo1():
-    interact(ogrid_demo1_plot,
+
+    fig, axes = subplots(figsize=(10, 5))
+    show()
+
+    interact(ogrid_demo1_plot, axes=fixed(axes),
              x=(xmin, xmax, 1),
              y=(ymin, ymax, 1),
              heading=(tmin, tmax, 15),

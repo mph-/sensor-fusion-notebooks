@@ -1,7 +1,7 @@
 # Michael P. Hayes UCECE, Copyright 2018--2019
 import numpy as np
 from matplotlib.pyplot import arrow
-from ipywidgets import interact, interactive, fixed
+from ipywidgets import interact, fixed, interactive, fixed
 from matplotlib.pyplot import subplots
 from numpy.random import randn, uniform, seed
 from .lib.robot import robot_draw, Robot

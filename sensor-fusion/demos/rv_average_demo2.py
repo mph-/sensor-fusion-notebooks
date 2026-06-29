@@ -1,6 +1,7 @@
 # M. P. Hayes UCECE
 import numpy as np
 import numpy.ma as ma
+from matplotlib.pyplot import show
 from ipywidgets import interact
 from .lib.signal_plot import signal_plot
 from .lib.utils import gauss
@@ -44,6 +45,8 @@ def rv_average_demo2_plot(muX=0, sigmaX=1, N=5, distribution=distributions[1]):
     fig = signal_plot(x[mx], lfZ[mx])
     fig.axes[0].plot(x[mx], lfG[mx], '--')
     fig.axes[0].set_ylim(-35, 5)
+
+    show()
 
 
 def rv_average_demo2():

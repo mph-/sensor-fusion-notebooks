@@ -1,8 +1,9 @@
 # Michael P. Hayes UCECE, Copyright 2018--2019
 import numpy as np
-from ipywidgets import interact, interactive, fixed
-from matplotlib.pyplot import figure
+from ipywidgets import interact, fixed
+from matplotlib.pyplot import subplots, show
 from .lib.utils import gauss
+
 
 distributions = ['gaussian', 'uniform']
 
@@ -17,7 +18,8 @@ def pdf(x, muX, sigmaX, distribution):
         return 1.0 * ((x >= xmin) & (x <= xmax)) / (xmax - xmin)
     raise ValueError('Unknown distribution %s' % distribution)
 
-def bayes_demo1_plot(muX=0, sigmaX=1, sigmaV=0.5, z=2,
+
+def bayes_demo1_plot(axes, muX=0, sigmaX=1, sigmaV=0.5, z=2,
                      distX=distributions[0],
                      distV=distributions[0]):
 
@@ -25,26 +27,28 @@ def bayes_demo1_plot(muX=0, sigmaX=1, sigmaV=0.5, z=2,
     x = np.linspace(-5, 5, Nx)
 
     fX = pdf(x, muX, sigmaX, distX)
-    fV = pdf(x, 0, sigmaV, distV)
     fZgX = pdf(x, z, sigmaV, distV)
 
     fXgZ = fZgX * fX
     eta = np.trapz(fXgZ, x)
     fXgZ /= eta
 
-    fig = figure(figsize=(10, 5))
-    ax = fig.add_subplot(111)
-    ax.grid(True)
+    axes.clear()
+    axes.grid(True)
 
-    ax.plot(x, fZgX, '--', label='$L(x|%d)$ likelihood' % z)
-    ax.plot(x, fX, '-.', label='$f_X(x)$ prior')
-    ax.plot(x, fXgZ, '-', label='$f_{X|Z}(x|%d)$ posterior' %z)
+    axes.plot(x, fZgX, '--', label='$L(x|%d)$ likelihood' % z)
+    axes.plot(x, fX, '-.', label='$f_X(x)$ prior')
+    axes.plot(x, fXgZ, '-', label='$f_{X|Z}(x|%d)$ posterior' % z)
 
-    ax.legend()
+    axes.legend()
 
 
 def bayes_demo1():
-    interact(bayes_demo1_plot, muX=(-2, 2),
+
+    fig, axes = subplots(1)
+    show()
+
+    interact(bayes_demo1_plot, axes=fixed(axes), muX=(-2, 2),
              sigmaX=(0.01, 5, 0.01), sigmaV=(0.01, 5, 0.01),
              z=(-4, 4, 1),
              distX=distributions, distV=distributions)

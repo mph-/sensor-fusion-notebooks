@@ -1,7 +1,7 @@
 # Michael P. Hayes UCECE, Copyright 2018--2019
 from numpy import degrees, radians, cos, sin, arctan2, sqrt, tan, pi
 from matplotlib.pyplot import subplots
-from ipywidgets import interact
+from ipywidgets import interact, fixed
 from .lib.robot import robot_draw
 from .lib.pose import Pose
 

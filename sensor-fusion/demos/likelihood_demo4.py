@@ -1,7 +1,7 @@
 # Michael P. Hayes UCECE, Copyright 2018--2019
 import numpy as np
-from ipywidgets import interact, interactive, fixed
-from matplotlib.pyplot import subplots
+from ipywidgets import interact
+from matplotlib.pyplot import subplots, show
 from .lib.utils import gauss
 
 distributions = ['gaussian', 'uniform']
@@ -37,8 +37,11 @@ def likelihood_demo4_plot(sigmaV=0.5, z=2,
         xML = x[m]
         print('%.3f, %.3f' % (x1, xML))
 
+    # FIXME Dynamically change number of axes.  This creates
+    # a new figure for every call
     fig, axes = subplots(2 + show_Lambda * 1, figsize=(10, 5))
     fig.tight_layout()
+    show()
 
     axes[0].plot(x, h, color='orange', label='$h(x) = 1/x$')
     axes[0].plot(x1, z, 'o', color='orange')

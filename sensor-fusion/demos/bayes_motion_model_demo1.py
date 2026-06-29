@@ -1,7 +1,7 @@
 # Michael P. Hayes UCECE, Copyright 2018--2019
 import numpy as np
 from ipywidgets import interact
-from matplotlib.pyplot import subplots
+from matplotlib.pyplot import subplots, show
 from .lib.utils import gauss
 
 
@@ -25,6 +25,8 @@ def bayes_motion_model_plot(sigmaW=0.2, u=2):
     axes.axis('tight')
     axes.set_xlabel('$x_{n-1}$')
     axes.set_ylabel('$x_{n}$')
+
+    show()
 
 
 def bayes_motion_model_demo1():

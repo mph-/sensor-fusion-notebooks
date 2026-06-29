@@ -1,6 +1,6 @@
 # Michael P. Hayes UCECE, Copyright 2018--2022
 import numpy as np
-from ipywidgets import interact
+from ipywidgets import interact, fixed
 from matplotlib.pyplot import subplots
 from .lib.utils import gauss
 

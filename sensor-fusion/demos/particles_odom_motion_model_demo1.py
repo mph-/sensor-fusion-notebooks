@@ -1,16 +1,15 @@
 # Michael P. Hayes UCECE, Copyright 2018--2019
 import numpy as np
-from matplotlib.pyplot import arrow
 from matplotlib.gridspec import GridSpec
-from ipywidgets import interact, interactive, fixed
-from matplotlib.pyplot import figure
-from numpy.random import randn, uniform, seed
+from ipywidgets import interact, fixed
+from matplotlib.pyplot import subplots, show
+from numpy.random import uniform, seed
 from .lib.robot import robot_draw, Robot2
 from .lib.pose import Pose
 from .lib.utils import gauss
 
 
-def particles_odom_motion_model_demo1_plot(Xmin=-1, Xmax=1, Ymin=0,
+def particles_odom_motion_model_demo1_plot(axes, Xmin=-1, Xmax=1, Ymin=0,
                                            Ymax=1, Thetamin=90,
                                            ThetaMax=90, Nparticles=10,
                                            dp=1, phi1p=0, phi2p=0,
@@ -30,12 +29,9 @@ def particles_odom_motion_model_demo1_plot(Xmin=-1, Xmax=1, Ymin=0,
                        uniform(Thetamin, ThetaMax))
         robots.append(robot)
 
-    fig = figure(figsize=(12, 5))
-    gs = GridSpec(8, 4)
-    ax1 = fig.add_subplot(gs[0:8, 0:3])
-    ax2 = fig.add_subplot(gs[0:2, 3])
-    ax3 = fig.add_subplot(gs[3:5, 3])
-    ax4 = fig.add_subplot(gs[6:8, 3])
+    ax1, ax2, ax3, ax4 = axes
+    for ax in axes:
+        ax.clear()
 
     Pose(0, 0, 0).draw_axes(ax1)
 
@@ -62,19 +58,31 @@ def particles_odom_motion_model_demo1_plot(Xmin=-1, Xmax=1, Ymin=0,
 
     phi1 = np.linspace(-20, 20, 100)
     ax3.plot(phi1, gauss(phi1, muPhi1, sigmaPhi1 + 1e-12))
-    ax3.set_xlabel("$\phi_1-\phi_1'$")
-    ax3.set_ylabel('$f_{\Phi_1}(\phi_1)$')
+    ax3.set_xlabel(r"$\phi_1-\phi_1'$")
+    ax3.set_ylabel(r'$f_{\Phi_1}(\phi_1)$')
     ax3.set_yticks([])
 
     phi2 = np.linspace(-20, 20, 100)
     ax4.plot(phi2, gauss(phi2, muPhi2, sigmaPhi2 + 1e-12))
-    ax4.set_xlabel("$\phi_2-\phi_2'$")
-    ax4.set_ylabel('$f_{\Phi_2}(\phi_2)$')
+    ax4.set_xlabel(r"$\phi_2-\phi_2'$")
+    ax4.set_ylabel(r'$f_{\Phi_2}(\phi_2)$')
     ax4.set_yticks([])
 
 
 def particles_odom_motion_model_demo1():
-    interact(particles_odom_motion_model_demo1_plot,
+
+    fig, axes = subplots(figsize=(12, 5))
+    gs = GridSpec(8, 4)
+    ax1 = fig.add_subplot(gs[0:8, 0:3])
+    ax2 = fig.add_subplot(gs[0:2, 3])
+    ax3 = fig.add_subplot(gs[3:5, 3])
+    ax4 = fig.add_subplot(gs[6:8, 3])
+
+    axes = [ax1, ax2, ax3, ax4]
+
+    show()
+
+    interact(particles_odom_motion_model_demo1_plot, axes=fixed(axes),
              Xmin=(-1, 1, 0.1), Xmax=(-1, 1, 0.1),
              Ymin=(-1, 1, 0.1), Ymax=(-1, 1, 0.1),
              Phimin=(-180, 180, 15), PhiMax=(-180, 180, 15),

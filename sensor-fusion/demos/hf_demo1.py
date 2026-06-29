@@ -1,11 +1,11 @@
 # Michael P. Hayes UCECE, Copyright 2018--2023
 import numpy as np
-from ipywidgets import interact
-from matplotlib.pyplot import subplots
+from ipywidgets import interact, fixed
+from matplotlib.pyplot import subplots, show
 from .lib.utils import gauss
 
 
-def hf_demo1_plot(sigmaX0=0.4, sigmaV=0.1, sigmaW=0.1,
+def hf_demo1_plot(axes, sigmaX0=0.4, sigmaV=0.1, sigmaW=0.1,
                   seed=1, M=50):
 
     np.random.seed(seed)
@@ -48,30 +48,33 @@ def hf_demo1_plot(sigmaX0=0.4, sigmaV=0.1, sigmaW=0.1,
     eta = 1 / np.trapz(fX_posterior, x)
     fX_posterior *= eta
 
-    fig, ax = subplots(figsize=(10, 5))
-    ax.grid(True)
+    axes.clear()
+    axes.grid(True)
 
-    ax.bar(x, fX_initial, label='$X_0$ initial',
-           edgecolor='black', width=dx)
+    axes.bar(x, fX_initial, label='$X_0$ initial',
+             edgecolor='black', width=dx)
 
-    ax.bar(x, fX_prior, label='$X_1^{-}$ prior',
-           edgecolor='black', width=dx)
+    axes.bar(x, fX_prior, label='$X_1^{-}$ prior',
+             edgecolor='black', width=dx)
 
-    ax.bar(x, fX_posterior,
-           label='$X_1^{+}$ posterior', edgecolor='black', width=dx)
+    axes.bar(x, fX_posterior,
+             label='$X_1^{+}$ posterior', edgecolor='black', width=dx)
 
-    ax.set_xlim(-1, 3)
-    ax.set_ylim(0, 4)
-    ax.set_xlabel('Position')
-    ax.set_ylabel('Prob. density')
-    ax.legend()
+    axes.set_xlim(-1, 3)
+    axes.set_ylim(0, 4)
+    axes.set_xlabel('Position')
+    axes.set_ylabel('Prob. density')
+    axes.legend()
 
 
 def hf_demo1():
-    interact(hf_demo1_plot, step=(1, 5), M=(10, 200, 10),
+
+    fig, axes = subplots(1, figsize=(10, 5))
+    show()
+
+    interact(hf_demo1_plot, axes=fixed(axes), step=(1, 5), M=(10, 200, 10),
              v=(1.0, 4.0, 0.2),
              sigmaX0=(0.1, 1, 0.1),
              sigmaV=(0.1, 1, 0.1),
              sigmaW=(0.1, 1, 0.1),
-             seed=(1, 100, 1),
-             continuous_update=False)
+             seed=(1, 100, 1))

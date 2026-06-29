@@ -1,7 +1,7 @@
 # Michael P. Hayes UCECE, Copyright 2018--2024
 from numpy import radians, exp, linspace, zeros
-from ipywidgets import interact
-from matplotlib.pyplot import subplots
+from ipywidgets import interact, fixed
+from matplotlib.pyplot import subplots, show
 from .lib.utils import angle_difference
 from .lib.robot import Robot
 
@@ -27,8 +27,9 @@ def calc_objective(weights, heading, vv, ww, speed_goal, heading_goal, dt):
                                       robot.heading, heading_goal)
 
 
-def dwa_demo1_plot(dt=1, v_max=4, omega_max=360, a_max=2, alpha_max=180, v=1,
-                   omega=0, heading=90, speed_goal=1, heading_goal=90):
+def dwa_demo1_plot(axes, dt=1, v_max=4, omega_max=360, a_max=2,
+                   alpha_max=180, v=1, omega=0, heading=90,
+                   speed_goal=1, heading_goal=90):
 
     w = omega
     w_max = omega_max
@@ -49,20 +50,18 @@ def dwa_demo1_plot(dt=1, v_max=4, omega_max=360, a_max=2, alpha_max=180, v=1,
     extra_v = v_max * 0.05
     extra_w = w_max * 0.05
 
-    fig, ax = subplots(figsize=(5, 5))
-
-    ax.set_xlim(v_min - extra_v, v_max + extra_v)
-    ax.set_ylim(w_min - extra_w, w_max + extra_w)
+    axes.set_xlim(v_min - extra_v, v_max + extra_v)
+    axes.set_ylim(w_min - extra_w, w_max + extra_w)
 
     # Region of all possible speeds
-    ax.plot((v_min, v_min, v_max, v_max, v_min),
-            (w_min, w_max, w_max, w_min, w_min),
-            'b-')
+    axes.plot((v_min, v_min, v_max, v_max, v_min),
+              (w_min, w_max, w_max, w_min, w_min),
+              'b-')
 
     # Region of all achievable speeds
-    ax.plot((v1_min, v1_min, v1_max, v1_max, v1_min),
-            (w1_min, w1_max, w1_max, w1_min, w1_min),
-            '-', color='orange')
+    axes.plot((v1_min, v1_min, v1_max, v1_max, v1_min),
+              (w1_min, w1_max, w1_max, w1_min, w1_min),
+              '-', color='orange')
 
     Nv = 9
     Nw = 9
@@ -74,17 +73,21 @@ def dwa_demo1_plot(dt=1, v_max=4, omega_max=360, a_max=2, alpha_max=180, v=1,
 
     calc_objective(weights, heading, vv, ww, speed_goal, heading_goal, dt)
 
-    ax.imshow(weights.T, origin='lower', interpolation=None, aspect='auto',
-              extent=(v1_min, v1_max, w1_min, w1_max))
+    axes.imshow(weights.T, origin='lower', interpolation=None, aspect='auto',
+                extent=(v1_min, v1_max, w1_min, w1_max))
 
-    ax.set_xlabel('$v$')
-    ax.set_ylabel('$\omega$')
+    axes.set_xlabel('$v$')
+    axes.set_ylabel(r'$\omega$')
 
-    ax.grid(True)
+    axes.grid(True)
 
 
 def dwa_demo1():
-    interact(dwa_demo1_plot, dt=(0.1, 2, 0.1),
+
+    fig, axes = subplots(figsize=(5, 5))
+    show()
+
+    interact(dwa_demo1_plot, axes=fixed(axes), dt=(0.1, 2, 0.1),
              v=(0, 2, 0.1), omega=(-60, 60, 15),
              steps=(0, 10), v_max=(1, 5), omega_max=(90, 360, 15),
              a_max=(0.5, 2, 0.5), alpha_max=(30, 180, 15),

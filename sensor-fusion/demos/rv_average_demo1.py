@@ -1,8 +1,10 @@
 # M. P. Hayes UCECE
 import numpy as np
-from ipywidgets import interact
+from ipywidgets import interact, fixed
 from .lib.signal_plot import signal_plot
 from .lib.utils import gauss
+from matplotlib.pyplot import subplots, show
+
 
 distributions = ['gaussian', 'uniform']
 
@@ -20,7 +22,8 @@ def pdf(x, muX, sigmaX, distribution):
     raise ValueError('Unknown distribution %s' % distribution)
 
 
-def rv_average_demo1_plot(muX=0, sigmaX=1, N=1, distribution=distributions[1],
+def rv_average_demo1_plot(axes, muX=0, sigmaX=1, N=1,
+                          distribution=distributions[1],
                           show_gaussian=False, log_plot=False):
 
     Nx = 201
@@ -44,14 +47,21 @@ def rv_average_demo1_plot(muX=0, sigmaX=1, N=1, distribution=distributions[1],
         fG[mx] = np.log(fG[mx] + 1e-320)
     ylabel = r'$\mathrm{log}\ f_Z(x)$'
 
-    fig = signal_plot(x[mx], fZ[mx])
-    if show_gaussian:
-        fig.axes[0].plot(x[mx], fG[mx], '--')
+    axes.clear()
 
-    fig.axes[0].set_xlabel('$x$')
-    fig.axes[0].set_ylabel(ylabel)
+    signal_plot(x[mx], fZ[mx], axes=axes)
+    if show_gaussian:
+        axes.plot(x[mx], fG[mx], '--')
+
+    axes.set_xlabel('$x$')
+    axes.set_ylabel(ylabel)
 
 
 def rv_average_demo1():
-    interact(rv_average_demo1_plot, muX=(-2, 2), sigmaX=(0.01, 5, 0.01),
+
+    fig, axes = subplots(1)
+    show()
+
+    interact(rv_average_demo1_plot, axes=fixed(axes),
+             muX=(-2, 2), sigmaX=(0.01, 5, 0.01),
              distribution=distributions, N=(1, 100))

@@ -1,9 +1,9 @@
 # Michael P. Hayes UCECE, Copyright 2018--2019
 import numpy as np
-from ipywidgets import interact, interactive, fixed
-from matplotlib.pyplot import figure
-from .lib.signal_plot import signal_plot2
+from ipywidgets import interact, fixed
+from matplotlib.pyplot import subplots, show
 from .lib.utils import gauss
+
 
 distributions = ['gaussian', 'uniform']
 
@@ -13,6 +13,7 @@ beliefs = ['uniform sigma = 0.1',
            'gaussian sigma = 0.1',
            'gaussian sigma = 0.2',
            'gaussian sigma = 0.5']
+
 
 def pdf(x, muX, sigmaX, distribution):
 
@@ -24,6 +25,7 @@ def pdf(x, muX, sigmaX, distribution):
         return 1.0 * ((x >= xmin) & (x <= xmax)) / (xmax - xmin)
     raise ValueError('Unknown distribution %s' % distribution)
 
+
 def pdf_byname(x, muX, name):
 
     parts = name.split(' ')
@@ -32,7 +34,9 @@ def pdf_byname(x, muX, name):
 
     return pdf(x, muX, sigmaX, distribution)
 
-def dead_reckoning_demo1_plot(v=2, X0=beliefs[0], Wn=beliefs[3], steps=0):
+
+def dead_reckoning_demo1_plot(axes, v=2, X0=beliefs[0], Wn=beliefs[3],
+                              steps=0):
 
     dt = 1
 
@@ -41,9 +45,6 @@ def dead_reckoning_demo1_plot(v=2, X0=beliefs[0], Wn=beliefs[3], steps=0):
     dx = x[1] - x[0]
     offset = int(-x[0] / dx)
 
-    Xrange = 1
-    sigmaX = Xrange / np.sqrt(12)
-
     muX = 0
     muW = v * dt
 
@@ -51,9 +52,8 @@ def dead_reckoning_demo1_plot(v=2, X0=beliefs[0], Wn=beliefs[3], steps=0):
 
     fW = pdf_byname(x, muW, Wn)
 
-    fig = figure(figsize=(10, 3))
-    ax = fig.add_subplot(111)
-    ax.grid(True)
+    axes.clear()
+    axes.grid(True)
 
     mx = (x < 12) & (x > -2)
 
@@ -62,10 +62,18 @@ def dead_reckoning_demo1_plot(v=2, X0=beliefs[0], Wn=beliefs[3], steps=0):
         if m > 0:
             fX = np.convolve(fX, fW)[offset:offset + len(x)] * dx
 
-        ax.plot(x[mx], fX[mx], label='%d' % m)
+        axes.plot(x[mx], fX[mx], label='%d' % m)
 
-    ax.legend()
+    axes.legend()
+
+    show()
+
 
 def dead_reckoning_demo1():
-    interact(dead_reckoning_demo1_plot, steps=(0, 5), v=(0, 5, 0.25),
+
+    fig, axes = subplots(1)
+    show()
+
+    interact(dead_reckoning_demo1_plot, axes=fixed(axes),
+             steps=(0, 5), v=(0, 5, 0.25),
              X0=beliefs, Wn=beliefs, continuous_update=False)

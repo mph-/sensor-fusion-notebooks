@@ -1,12 +1,12 @@
 # Michael P. Hayes UCECE, Copyright 2022
 import numpy as np
-from ipywidgets import interact
-from matplotlib.pyplot import subplots
+from ipywidgets import interact, fixed
+from matplotlib.pyplot import subplots, show
 from .lib.robot import robot_draw, Robot
 from .lib.pose import Pose
 
 
-def velocity_motion_model_demo2_plot(x0=3, y0=1, heading0=90,
+def velocity_motion_model_demo2_plot(axes, x0=3, y0=1, heading0=90,
                                      v=1, omega=0, steps=0):
 
     x = np.zeros(steps + 1)
@@ -30,7 +30,9 @@ def velocity_motion_model_demo2_plot(x0=3, y0=1, heading0=90,
         thetal[m] = robotl.heading
         robotl.transition(v, np.radians(omega), dt=1)
 
-    fig, axes = subplots(1, 2, figsize=(11, 5))
+    for ax in axes:
+        ax.clear()
+
     Pose(0, 0, 0).draw_axes(axes[0])
     Pose(x0, y0, np.radians(heading0)).draw_axes(axes[0], linestyle=':')
 
@@ -58,7 +60,11 @@ def velocity_motion_model_demo2_plot(x0=3, y0=1, heading0=90,
 
 
 def velocity_motion_model_demo2():
-    interact(velocity_motion_model_demo2_plot,
+
+    fig, axes = subplots(1, 2, figsize=(11, 5))
+    show()
+
+    interact(velocity_motion_model_demo2_plot, axes=fixed(axes),
              x0=(-4, 4, 0.5),
              y0=(-4, 4, 0.5),
              heading0=(0, 180, 15),

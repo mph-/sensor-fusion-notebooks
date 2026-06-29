@@ -1,6 +1,6 @@
 # Michael P. Hayes UCECE, Copyright 2018--2019
 import numpy as np
-from ipywidgets import interact, interactive, fixed
+from ipywidgets import interact, fixed, interactive, fixed
 from scipy.interpolate import interp1d
 from matplotlib.pyplot import figure
 from .lib.utils import gauss

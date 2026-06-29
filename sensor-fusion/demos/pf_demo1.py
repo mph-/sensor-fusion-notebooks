@@ -1,12 +1,13 @@
 # Michael P. Hayes UCECE, Copyright 2018--2019
 import numpy as np
-from ipywidgets import interact, interactive, fixed
+from ipywidgets import interact, fixed
 from scipy.interpolate import interp1d
-from matplotlib.pyplot import figure
+from matplotlib.pyplot import subplots, show
 from .lib.utils import gauss
 from .lib.kde import KDE as KDE1
 
 distributions = ['uniform', 'gaussian']
+
 
 def pdf(x, muX, sigmaX, distribution):
 
@@ -30,7 +31,7 @@ def sample(x, fX, M):
     return interp(np.random.rand(M))
 
 
-def pf_demo1_plot(distX0='gaussian', sigmaX0=0.1, sigmaV=0.1,
+def pf_demo1_plot(axes, distX0='gaussian', sigmaX0=0.1, sigmaV=0.1,
                   sigmaW=0.05, seed=1, num_particles=5, z=1,
                   resample=False, KDE=False, annotate=True):
 
@@ -40,10 +41,7 @@ def pf_demo1_plot(distX0='gaussian', sigmaX0=0.1, sigmaV=0.1,
     v = 1
 
     dt = 1
-    A = 1
     B = dt
-    C = 1
-    D = 0
 
     annotate_max = 5
 
@@ -55,6 +53,9 @@ def pf_demo1_plot(distX0='gaussian', sigmaX0=0.1, sigmaV=0.1,
     px_initial = sample(x, fX, num_particles)
     weights_initial = np.ones(num_particles)
 
+    px_posterior = 0
+    weights_posterior = 0
+
     for m in range(1, step + 1):
 
         if m > 1:
@@ -64,7 +65,7 @@ def pf_demo1_plot(distX0='gaussian', sigmaX0=0.1, sigmaV=0.1,
         px_prior = px_initial + B * v + np.random.randn(num_particles) * sigmaW
         weights_prior = weights_initial
 
-        #z = C * m * dt * v + np.random.randn(1) * sigmaV
+        # z = C * m * dt * v + np.random.randn(1) * sigmaV
 
         px_posterior = px_prior
         weights_posterior = weights_prior * gauss(px_posterior, z, sigmaV)
@@ -75,51 +76,60 @@ def pf_demo1_plot(distX0='gaussian', sigmaX0=0.1, sigmaV=0.1,
             px_posterior = sample(x, fXpostest, num_particles)
             weights_posterior = np.ones(num_particles)
 
-
-    fig = figure(figsize=(10, 5))
-    ax = fig.add_subplot(111)
-    ax.grid(True)
+    axes.clear()
+    axes.grid(True)
 
     width = 0.02
     alpha = 0.5
-    ax.bar(px_initial, weights_initial, width=width, linewidth=0, alpha=alpha, label='$X_{%d}$ initial' % (m - 1))
+    axes.bar(px_initial, weights_initial, width=width, linewidth=0,
+             alpha=alpha, label='$X_{%d}$ initial' % (m - 1))
 
     idx = np.argsort(px_initial[0: min(num_particles, annotate_max)])
 
     if annotate:
         for q, p in enumerate(idx):
-            ax.text(px_initial[p], weights_initial[p] * 1.05, '%d' % (q + 1))
+            axes.text(px_initial[p], weights_initial[p] * 1.05, '%d' % (q + 1))
 
-    ax.bar(px_prior, weights_prior, width=width, linewidth=0, alpha=alpha, label='$X_{%d}^{-}$ prior' % m)
+    axes.bar(px_prior, weights_prior, width=width, linewidth=0,
+             alpha=alpha, label='$X_{%d}^{-}$ prior' % m)
     if annotate:
         for q, p in enumerate(idx):
-            ax.text(px_prior[p], weights_prior[p] * 1.05, '%d' % (q + 1))
+            axes.text(px_prior[p], weights_prior[p] * 1.05, '%d' % (q + 1))
 
-    ax.bar(px_posterior, weights_posterior, width=width, linewidth=0, alpha=alpha, label='$X_{%d}^{+}$ posterior' % m)
+    axes.bar(px_posterior, weights_posterior, width=width, linewidth=0,
+             alpha=alpha, label='$X_{%d}^{+}$ posterior' % m)
 
-    max_weight = max(max(weights_initial), max(weights_prior), max(weights_posterior1))
+    max_weight = max(max(weights_initial), max(weights_prior),
+                     max(weights_posterior1))
+    _ = max_weight
 
-    ax.set_xlim(-1, 2)
-    # ax.set_ylim(0, max_weight + 0.1)
-    ax.set_ylim(0, 4.1)
-    ax.set_xlabel('Position')
-    ax.set_ylabel('Weight')
+    axes.set_xlim(-1, 2)
+    # axes.set_ylim(0, max_weight + 0.1)
+    axes.set_ylim(0, 4.1)
+    axes.set_xlabel('Position')
+    axes.set_ylabel('Weight')
 
     if KDE:
         fXpostest = KDE1(px_posterior, weights_posterior).estimate(x)
         fXpriortest = KDE1(px_prior, weights_prior).estimate(x)
         fXinitialest = KDE1(px_initial, weights_initial).estimate(x)
 
-        ax2 = ax.twinx()
+        ax2 = axes.twinx()
         ax2.plot(x, fXinitialest)
         ax2.plot(x, fXpriortest)
         ax2.plot(x, fXpostest)
         ax2.set_ylabel('Prob. density')
 
-    ax.legend()
+    axes.legend()
+
 
 def pf_demo1():
-    interact(pf_demo1_plot, step=(1, 5), num_particles=(5, 100, 5),
+
+    fig, axes = subplots(1)
+    show()
+
+    interact(pf_demo1_plot, axes=fixed(axes),
+             step=(1, 5), num_particles=(5, 100, 5),
              z=(0.7, 1.3, 0.05),
              v=(1.0, 4.0, 0.2),
              distX0=distributions,
