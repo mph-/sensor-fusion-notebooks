@@ -16,7 +16,7 @@ def robot_draw(ax, x, y, theta, d=0.25, **kwargs):
     color = kwargs.pop('color', kwargs.pop('colour', 'blue'))
     circle = Circle((x, y), d, fill=False, color=color, **kwargs)
     ax.add_artist(circle)
-    ax.arrow(x, y, dx, dy, **opt, color=color)        
+    ax.arrow(x, y, dx, dy, **opt, color=color)
 
 
 class Robot(object):
@@ -30,11 +30,11 @@ class Robot(object):
     @property
     def pose(self):
         return Pose(self.x, self.y, self.heading)
-        
+
     def transition(self, v, omega, dt=0.1):
 
         from numpy import sin, cos
-        
+
         hp = self.heading
 
         if omega == 0.0:
@@ -48,7 +48,7 @@ class Robot(object):
     def draw(self, ax, d=0.5, **kwargs):
         robot_draw(ax, self.x, self.y, self.heading, d=d, **kwargs)
 
-    
+
 
 class Robot2(object):
 

@@ -175,6 +175,8 @@ class Occfind(object):
 
 
 class Block(object):
+    """Blocks are comprised of four LineSegs (line segments), one per
+    side."""
 
     def __init__(self, x, y, d=0.5):
 
@@ -193,6 +195,7 @@ class Block(object):
 
 
 class Wall(object):
+    """Walls are comprised of blocks."""
 
     def __init__(self, p0, p1, d=0.5):
 
@@ -212,6 +215,8 @@ class Wall(object):
             # Horizontal
             for x in arange(x0, x1 + 1):
                 self.blocks.append(Block(x, y0, d))
+        else:
+            raise ValueError('Wall cannot be rotated')
 
     def draw(self, axes):
 
@@ -231,7 +236,7 @@ class Wall(object):
         blockhit = None
         hit = False
 
-        # Check all four walls and return closest hit if any
+        # Check all four sides and return closest hit if any
         for block in self.blocks:
             for lineseg in block.linesegs:
                 R = ray.intersection(lineseg)
