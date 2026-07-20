@@ -66,8 +66,6 @@ def dead_reckoning_demo1_plot(axes, v=2, X0=beliefs[0], Wn=beliefs[3],
 
     axes.legend()
 
-    show()
-
 
 def dead_reckoning_demo1():
 

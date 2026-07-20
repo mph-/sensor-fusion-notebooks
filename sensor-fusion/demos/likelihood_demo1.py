@@ -1,6 +1,6 @@
 # Michael P. Hayes UCECE, Copyright 2018--2019
 import numpy as np
-from ipywidgets import interact
+from ipywidgets import interact, fixed
 from matplotlib.pyplot import subplots, show
 from .lib.utils import gauss
 
@@ -18,7 +18,7 @@ def pdf(x, muX, sigmaX, distribution):
     raise ValueError('Unknown distribution %s' % distribution)
 
 
-def likelihood_demo1_plot(sigmaV=0.5, z=2,
+def likelihood_demo1_plot(axes, sigmaV=0.5, z=2,
                           distV=distributions[0], show_Lambda=True):
 
     Nx = 801
@@ -28,12 +28,7 @@ def likelihood_demo1_plot(sigmaV=0.5, z=2,
 
     fZgX = pdf(z - h, 0, sigmaV, distV)
 
-    # FIXME Dynamically change number of axes.  This creates
-    # a new figure for every call
-    fig, axes = subplots(2 + show_Lambda * 1, figsize=(10, 5))
-    fig.tight_layout()
-    show()
-
+    axes[0].clear()
     axes[0].plot(x, h, color='orange', label='$h(x) = x$')
     axes[0].plot(np.interp(z, h, x), z, 'o', color='orange')
     axes[0].grid(True)
@@ -41,12 +36,13 @@ def likelihood_demo1_plot(sigmaV=0.5, z=2,
     axes[0].set_ylabel('$z$')
     axes[0].legend()
 
+    axes[1].clear()
     axes[1].plot(x, fZgX, '--', label='$L(x|%.1f)$' % z)
     axes[1].grid(True)
     axes[1].set_xlabel('$x$')
     axes[1].legend()
 
-    if show_Lambda:
+    if True or show_Lambda:
         zv = np.linspace(0, 5, 201)
 
         X, Z = np.meshgrid(x, zv)
@@ -62,5 +58,10 @@ def likelihood_demo1_plot(sigmaV=0.5, z=2,
 
 def likelihood_demo1():
 
-    interact(likelihood_demo1_plot, sigmaV=(0.01, 5, 0.01), z=(0, 5, 0.2),
+    fig, axes = subplots(3)
+    fig.tight_layout()
+    show()
+
+    interact(likelihood_demo1_plot, axes=fixed(axes),
+             sigmaV=(0.01, 5, 0.01), z=(0, 5, 0.2),
              distV=distributions)
